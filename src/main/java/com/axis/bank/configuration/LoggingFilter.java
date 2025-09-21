@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
 
-//    private static final Logger log = LoggerFactory.getLogger(LoggingFilter.class);
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
