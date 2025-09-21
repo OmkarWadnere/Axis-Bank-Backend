@@ -1,0 +1,61 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /axisbank/v1
+spring:
+  redis:
+    host: localhost
+    port: 6379
+  profiles:
+    active: dev
+  application:
+    name=Axis-Bank-Backend
+  jpa:
+    hibernate:
+      ddl-auto: update
+      properties:
+        hibernate:
+          format_sql: true
+    show-sql: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/axisbank_db
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 100
+      connection-timeout: 30000
+      idle-timeout: 36000000       # 10 hours (or set to 0 to disable)
+      max-lifetime: 36000000       # 10 hours
+      pool-name: axis-bank
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"   # Enable all actuator endpoints
+      base-path: /actuator   # Change base path (default: /actuator)
+  endpoint:
+    health:
+      show-details: always   # Always show full health details
+  info:
+    env:
+      enabled: true          # Allow app info from properties
+
+info:
+  app:
+    name: Axis Bank Backend
+    version: 1.0.0
+    description: Spring Boot Banking Application
+
+app:
+  jwt:
+    private-key-path: classpath:keys/jwt_private_pkcs8.pem
+    public-key-path: classpath:keys/jwt_public.pem
+    access-token-validity-seconds: 900    #15 minutes
+    refresh-token-validity-seconds: 1209600  #14 days
+
+logging:
+  level:
+    root: INFO

@@ -1,0 +1,17 @@
+package com.axis.bank;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+
+@SpringBootApplication
+@EnableCaching
+public class AxisBankBackendApplication {
+
+
+    public static void main(String[] args) {
+        SpringApplication.run(AxisBankBackendApplication.class, args);
+
+    }
+
+}
