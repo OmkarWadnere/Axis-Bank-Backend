@@ -1,6 +1,8 @@
 package com.axis.bank.controller;
 
 import com.axis.bank.exception.AxisBankException;
+import com.axis.bank.models.dto.LoginRequest;
+import com.axis.bank.models.dto.LoginResponse;
 import com.axis.bank.models.dto.SignUpRequest;
 import com.axis.bank.models.dto.SignUpResponse;
 import com.axis.bank.service.UserService;
@@ -24,6 +26,11 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<SignUpResponse> singUpUser(@Valid @RequestBody SignUpRequest signUpRequest) throws AxisBankException {
-        return new ResponseEntity<>(userService.signUpUser(signUpRequest), HttpStatus.OK);
+        return new ResponseEntity<>(userService.signUpUser(signUpRequest), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) throws AxisBankException {
+        return new ResponseEntity<>(userService.    loginUser(loginRequest), HttpStatus.OK);
     }
 }

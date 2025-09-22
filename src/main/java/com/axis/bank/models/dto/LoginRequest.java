@@ -17,7 +17,7 @@ import lombok.ToString;
 public class LoginRequest {
 
     @NotBlank(message = "Please enter mobileNumber or emailId")
-    private String mobileNumberOrEmailId;
+    private String userName;
 
     @NotBlank(message = "Please enter password")
     private String password;
