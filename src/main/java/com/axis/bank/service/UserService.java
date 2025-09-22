@@ -45,7 +45,7 @@ public class UserService {
                 .emailId(signUpRequest.getEmailId())
                 .mobileNumber(signUpRequest.getMobileNumber())
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
-                .roles(Collections.singleton(Role.CUSTOMER))
+                .roles(Collections.singleton(Role.valueOf(signUpRequest.getRole())))
                 .enabled(true)
                 .locked(false)
                 .createdAt(LocalDateTime.now())

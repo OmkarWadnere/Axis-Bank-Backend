@@ -1,5 +1,6 @@
 package com.axis.bank.models.dto;
 
+import com.axis.bank.models.emum.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -44,4 +45,6 @@ public class SignUpRequest {
     @NotNull(message = "birthDate should not be blank")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
+
+    private String role = Role.CUSTOMER.getRoleType();
 }
