@@ -59,9 +59,9 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/user/signup", "/user/login").permitAll()
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/employee/**").hasRole("EMPLOYEE")
-                                .requestMatchers("/**").hasRole("CUSTOMER").anyRequest().authenticated())
+                                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/employee/**").hasAuthority("EMPLOYEE")
+                                .requestMatchers("/**").hasAuthority("CUSTOMER").anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
