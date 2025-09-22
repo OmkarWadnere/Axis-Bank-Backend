@@ -14,6 +14,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     Optional<User> findByMobileNumber(String mobileNumber);
 
+    Optional<User> findByMobileNumberOrEmailId(String mobileNumber, String emailId);
+
     @Cacheable(value = "userExists", key = "#emailId", unless = "#result == false")
     boolean existsByEmailId(String emailId);
 

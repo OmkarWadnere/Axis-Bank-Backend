@@ -1,5 +1,6 @@
 package com.axis.bank.configuration;
 
+import com.axis.bank.utility.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,10 +20,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.axis.bank.utility.Constants.X_OPERATION_ID;
+import static com.axis.bank.utility.Constants.X_TRACE_ID;
+
 @Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
-
-//    private static final Logger log = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -34,10 +36,10 @@ public class LoggingFilter extends OncePerRequestFilter {
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
         // Generate traceId and operationId for this request
-        String traceId = UUID.randomUUID().toString();
-        String operationId = UUID.randomUUID().toString();
-        MDC.put("traceId", traceId);
-        MDC.put("operationId", operationId);
+        String traceId = request.getHeader(X_TRACE_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_TRACE_ID);
+        String operationId = request.getHeader(X_OPERATION_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_OPERATION_ID);
+        MDC.put(Constants.TRACE_ID, traceId);
+        MDC.put(Constants.OPERATION_ID, operationId);
 
         try {
             // Continue filter chain
