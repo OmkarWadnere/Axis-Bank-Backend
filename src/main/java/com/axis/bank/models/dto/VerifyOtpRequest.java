@@ -8,24 +8,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public class LoginRequest {
+public class VerifyOtpRequest {
 
     @Email(message = "please enter valid emailId")
     @NotNull(message = "emailId should not be blank")
     @Pattern(regexp = "^[^@]+@gmail\\.com$", message = "please enter valid emailId")
-    private String userName;
-
-    @Pattern(
-            regexp = "^(?=.{8,})(?=.*\\d)(?=.*[^A-Za-z0-9])[A-Z].*$",
-            message = "Password must start with an uppercase letter, at least 8 characters long, and include at least one number and one special character."
-    )
-    private String password;
+    private String emailId;
+    @NotNull(message = "mobileNumber should not be blank")
+    @Pattern(regexp = "^\\d{6}$", message = "otp should be 10 digits")
+    private String otp;
 }

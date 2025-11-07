@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -99,10 +100,26 @@ public class AxisBankExceptionHandler {
         return new ResponseEntity<>(errorInfo, HttpStatus.FORBIDDEN);
     }
 
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorInfo> optimisticLockingFailureExceptionHandler(OptimisticLockingFailureException exception) {
+        logCompleteTrace(exception);
+        ErrorInfo errorInfo = new ErrorInfo();
+        errorInfo.setUuid(MDC.get(TRACE_ID));
+        errorInfo.setErrorMessage("This record was updated by another request. Please refresh and try again.");
+        errorInfo.setErrorCode(HttpStatus.BAD_REQUEST.value());
+        errorInfo.setTimeStamp(LocalDateTime.now());
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error(errorInfo.toString());
+        }
+        return new ResponseEntity<>(errorInfo, HttpStatus.BAD_REQUEST);
+    }
+
     private void logCompleteTrace(Exception exception) {
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error("Stack Trace : {}", exception.getStackTrace());
             LOGGER.error("Error Message : {}", exception.getMessage());
         }
     }
+
 }
