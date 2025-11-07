@@ -29,7 +29,24 @@ spring:
       idle-timeout: 36000000       # 10 hours (or set to 0 to disable)
       max-lifetime: 36000000       # 10 hours
       pool-name: axis-bank
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: wadnereomkar@gmail.com
+    password: neyk hlvs dedw aqkq
+    properties:
+      mail:
+        transport:
+          protocol: smtp                 # Protocol to use
+        smtp:
+          auth: true                     # Enable authentication
+          starttls:
+            enable: true                 # Enable STARTTLS for secure connection
+          connectiontimeout: 5000        # Connection timeout in milliseconds
+          timeout: 5000                  # Socket timeout in milliseconds
+          writetimeout: 5000             # Write timeout in milliseconds
+          pool: true                     # Enable connection pooling
+          poolsize: 5                    # Optional: Maximum connections in the pool (custom property)
 management:
   endpoints:
     web:
@@ -59,3 +76,14 @@ app:
 logging:
   level:
     root: INFO
+
+otp:
+  ttlSeconds: 300
+  cooldownSeconds: 60
+  maxVerifyAttempts: 5
+  maxRequestPerHour: 10
+  maxRequestReachedTime: 3600
+  hmacSecret: VshI/FeERC5ng21fwq0MhNLXbOpP5qe7uJQaN20FXHA=
+
+user:
+  signupTime: 900

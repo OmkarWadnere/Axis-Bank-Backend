@@ -104,10 +104,10 @@ public class LoggingFilter extends OncePerRequestFilter {
         if (body == null || body.isEmpty()) return body;
 
         return body
-                .replaceAll("(?i)\"password\"\\s*:\\s*\"[^\"]*\"", "\"password\":\"***\"")
-                .replaceAll("(?i)\"token\"\\s*:\\s*\"[^\"]*\"", "\"token\":\"***\"")
-                .replaceAll("(?i)\"secret\"\\s*:\\s*\"[^\"]*\"", "\"secret\":\"***\"")
-                .replaceAll("(?i)\"cvv\"\\s*:\\s*\"[^\"]*\"", "\"cvv\":\"***\"")
-                .replaceAll("(?i)\"pan\"\\s*:\\s*\"[^\"]*\"", "\"pan\":\"***\"");
+                .replaceAll("(?i)\"[^\"]*password[^\"]*\"\\s*:\\s*\"[^\"]*\"", "\"password\":\"***\"")
+                .replaceAll("(?i)\"[^\"]*token[^\"]*\"\\s*:\\s*\"[^\"]*\"", "\"token\":\"***\"")
+                .replaceAll("(?i)\"[^\"]*secret[^\"]*\"\\s*:\\s*\"[^\"]*\"", "\"secret\":\"***\"")
+                .replaceAll("(?i)\"[^\"]*cvv[^\"]*\"\\s*:\\s*\"[^\"]*\"", "\"cvv\":\"***\"")
+                .replaceAll("(?i)\"[^\"]*pan[^\"]*\"\\s*:\\s*\"[^\"]*\"", "\"pan\":\"***\"");
     }
 }

@@ -3,7 +3,6 @@ package com.axis.bank.auth.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +14,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.axis.bank.utility.Constants.ROLES;
 
 @Component
 public class JwtProvider {
@@ -38,38 +39,30 @@ public class JwtProvider {
     public String generateAccessToken(UserDetails userDetails) {
         long now = System.currentTimeMillis();
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities()
+        claims.put(ROLES, userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList());
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + accessTokenValidityMs))
-                .signWith(privateKey, SignatureAlgorithm.RS256)
+        return Jwts.builder().claims(claims).subject(userDetails.getUsername()).issuedAt(new Date(now)).expiration(new Date(now + accessTokenValidityMs))
+                .signWith(privateKey, Jwts.SIG.RS256)
                 .compact();
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
         long now = System.currentTimeMillis();
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities()
+        claims.put(ROLES, userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList());
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setClaims(claims)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + refreshTokenValidityMs))
-                .signWith(privateKey, SignatureAlgorithm.RS256)
+        return Jwts.builder().subject(userDetails.getUsername()).claims(claims).issuedAt(new Date(now)).expiration(new Date(now + refreshTokenValidityMs))
+                .signWith(privateKey, Jwts.SIG.RS256)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(publicKey).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
@@ -77,24 +70,36 @@ public class JwtProvider {
     }
 
     public String getSubject(String token) {
-        return Jwts.parser().setSigningKey(publicKey).build().parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().verifyWith(
+                publicKey).build().parseSignedClaims(token).getPayload().getSubject();
     }
 
     public Date getExpiryDate(String token) {
-        return Jwts.parser().setSigningKey(publicKey).build().parseClaimsJws(token).getBody().getExpiration();
+        return Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload().getExpiration();
+    }
+
+    public long getRemainingValidity(String token) {
+        Date expiration = getExpiryDate(token);
+        return expiration.getTime() - System.currentTimeMillis();
     }
 
     // Extract roles
     public List<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.get("roles", List.class);
+        Object roles = claims.get(ROLES);
+
+        if (roles instanceof List<?>) {
+            return ((List<?>) roles).stream()
+                    .map(Object::toString).toList();
+        }
+        return List.of();
     }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(publicKey)
+                .verifyWith(publicKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

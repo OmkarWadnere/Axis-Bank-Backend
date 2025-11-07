@@ -8,12 +8,14 @@ import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class RedissonConfig {
+public class RedisConfig {
 
     @Bean(destroyMethod = "shutdown")
     public RedissonClient redissonClient() {
@@ -32,5 +34,15 @@ public class RedissonConfig {
         // TTL = 60s, maxIdleTime = 30s (tune as needed)
 
         return new RedissonSpringCacheManager(redissonClient, config);
+    }
+
+    @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory();
+    }
+
+    @Bean
+    public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory connectionFactory) {
+        return new StringRedisTemplate(connectionFactory);
     }
 }

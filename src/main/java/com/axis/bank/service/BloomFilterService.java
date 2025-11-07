@@ -6,12 +6,13 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+import static com.axis.bank.utility.Constants.BLOOM_NAME;
+
 @Service
 @RequiredArgsConstructor
 public class BloomFilterService {
 
     private final RedissonClient redissonClient;
-    private final String BLOOM_NAME = "bloom:user:email-mobile";
 
     @PostConstruct
     public void setup() {

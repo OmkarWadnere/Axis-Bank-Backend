@@ -30,15 +30,19 @@ public class SignUpRequest {
     @NotBlank(message = "lastName should not be blank")
     private String lastName;
 
-    @Email(message = "emailId should be valid")
+    @Email(message = "please enter valid emailId")
     @NotNull(message = "emailId should not be blank")
+    @Pattern(regexp = "^[^@]+@gmail\\.com$", message = "please enter valid emailId")
     private String emailId;
 
     @NotNull(message = "mobileNumber should not be blank")
     @Pattern(regexp = "^\\d{10}$", message = "mobileNumber should be 10 digits")
     private String mobileNumber;
 
-    @NotBlank(message = "password should not be blank")
+    @Pattern(
+            regexp = "^(?=.{8,})(?=.*\\d)(?=.*[^A-Za-z0-9])[A-Z].*$",
+            message = "Password must start with an uppercase letter, be at least 8 characters long, and include at least one number and one special character."
+    )
     private String password;
 
     @PastOrPresent(message = "birthDate should not be future date")

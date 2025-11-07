@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -45,8 +46,12 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
 
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
+
+    @Version
+    private Integer version;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -66,6 +71,9 @@ public class User implements UserDetails {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
+    @Column(name = "invalid_password_counter", nullable = false)
+    private Integer invalidPasswordCounter;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
@@ -81,6 +89,15 @@ public class User implements UserDetails {
 
     @Column(name = "updated_time", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "locked_time")
+    private LocalDateTime lockedTime;
+
+    @Column(name = "eligible_for_password_reset")
+    private Boolean isUserEligibleForPasswordReset = false;
+
+    @Column(name = "eligible_time")
+    private LocalDateTime eligibleTime;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
