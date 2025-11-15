@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
 
 import static com.axis.bank.utility.Constants.OPERATION_ID;
@@ -34,7 +35,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         MDC.put(OPERATION_ID, request.getHeader(X_OPERATION_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_OPERATION_ID));
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(Constants.TRACE_ID));
-        errorInfo.setErrorMessage("Unauthorized access: " + authException.getMessage());
+        errorInfo.setErrorMessages(Collections.singletonList("Unauthorized access: " + authException.getMessage()));
         errorInfo.setErrorCode(HttpStatus.UNAUTHORIZED.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
 

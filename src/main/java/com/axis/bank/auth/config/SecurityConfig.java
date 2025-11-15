@@ -3,9 +3,11 @@ package com.axis.bank.auth.config;
 import com.axis.bank.auth.security.CustomAccessDeniedHandler;
 import com.axis.bank.auth.security.CustomAuthenticationEntryPoint;
 import com.axis.bank.auth.security.CustomUserDetailsService;
+import com.axis.bank.auth.security.HeaderValidationFilter;
 import com.axis.bank.auth.security.JwtAuthenticationFilter;
 import com.axis.bank.auth.security.JwtProvider;
 import com.axis.bank.auth.service.TokenBlackListService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,11 +38,18 @@ public class SecurityConfig {
     private final TokenBlackListService tokenBlackListService;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
+    private final ObjectMapper objectMapper;
 
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthFilterRegistration(JwtAuthenticationFilter filter) {
         FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false); // 🚫 disable auto-registration
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<HeaderValidationFilter> headerValidationFilterFilterRegistration(HeaderValidationFilter filter) {
+        FilterRegistrationBean<HeaderValidationFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false); // 🚫 disable auto-registration
         return registration;
     }
@@ -60,6 +71,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    public HeaderValidationFilter headerValidationFilter() {
+        return new HeaderValidationFilter(objectMapper);
+    }
+
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors(cors -> cors
                         .configurationSource(corsConfigurationSource())
@@ -74,6 +91,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.addFilterBefore(headerValidationFilter(), AuthorizationFilter.class);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

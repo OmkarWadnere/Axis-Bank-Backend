@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static com.axis.bank.utility.Constants.TRACE_ID;
@@ -31,7 +32,7 @@ public class AxisBankExceptionHandler {
         logCompleteTrace(exception);
         ErrorInfo errorInfo = ErrorInfo.builder()
                 .uuid(MDC.get(TRACE_ID)).errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .errorMessage(exception.getMessage()).timeStamp(LocalDateTime.now()).build();
+                .errorMessages(Collections.singletonList(exception.getMessage())).timeStamp(LocalDateTime.now()).build();
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error(errorInfo.toString());
         }
@@ -43,7 +44,7 @@ public class AxisBankExceptionHandler {
         logCompleteTrace(axisBankException);
         ErrorInfo errorInfo = ErrorInfo.builder().uuid(MDC.get(TRACE_ID))
                 .errorCode(axisBankException.getStatus().value())
-                .errorMessage(axisBankException.getMessage()).timeStamp(LocalDateTime.now()).build();
+                .errorMessages(Collections.singletonList(axisBankException.getMessage())).timeStamp(LocalDateTime.now()).build();
         if (LOGGER.isErrorEnabled()) {
             LOGGER.error(errorInfo.toString());
         }
@@ -60,7 +61,7 @@ public class AxisBankExceptionHandler {
 
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(TRACE_ID));
-        errorInfo.setErrorMessage(String.join(", ", errors)); // Combine multiple validation errors
+        errorInfo.setErrorMessages(errors); // Combine multiple validation errors
         errorInfo.setErrorCode(HttpStatus.BAD_REQUEST.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
         if (LOGGER.isErrorEnabled()) {
@@ -77,7 +78,7 @@ public class AxisBankExceptionHandler {
                 .toList();
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(TRACE_ID));
-        errorInfo.setErrorMessage(String.join(", ", errors)); // Proper message formatting
+        errorInfo.setErrorMessages(errors); // Proper message formatting
         errorInfo.setErrorCode(HttpStatus.BAD_REQUEST.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
         if (LOGGER.isErrorEnabled()) {
@@ -91,7 +92,7 @@ public class AxisBankExceptionHandler {
         logCompleteTrace(accessDeniedException);
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(TRACE_ID));
-        errorInfo.setErrorMessage(accessDeniedException.getMessage());
+        errorInfo.setErrorMessages(Collections.singletonList(accessDeniedException.getMessage()));
         errorInfo.setErrorCode(HttpStatus.FORBIDDEN.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
         if (LOGGER.isErrorEnabled()) {
@@ -106,7 +107,7 @@ public class AxisBankExceptionHandler {
         logCompleteTrace(exception);
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(TRACE_ID));
-        errorInfo.setErrorMessage("This record was updated by another request. Please refresh and try again.");
+        errorInfo.setErrorMessages(Collections.singletonList("This record was updated by another request. Please refresh and try again."));
         errorInfo.setErrorCode(HttpStatus.BAD_REQUEST.value());
         errorInfo.setTimeStamp(LocalDateTime.now());
         if (LOGGER.isErrorEnabled()) {
@@ -117,7 +118,7 @@ public class AxisBankExceptionHandler {
 
     private void logCompleteTrace(Exception exception) {
         if (LOGGER.isErrorEnabled()) {
-            LOGGER.error("Stack Trace : {}", exception.getStackTrace());
+            LOGGER.error("Stack Trace : {}", (Object[]) exception.getStackTrace());
             LOGGER.error("Error Message : {}", exception.getMessage());
         }
     }

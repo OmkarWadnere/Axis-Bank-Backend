@@ -195,4 +195,5 @@ public class ResetPasswordService {
         userRepository.save(user);
         return ResetPasswordResponse.builder().message("Password reset successfully!!!").build();
     }
+
 }
