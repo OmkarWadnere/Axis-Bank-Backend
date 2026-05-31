@@ -25,7 +25,7 @@ import static com.axis.bank.utility.Constants.TRACE_ID;
 @RestControllerAdvice
 public class AxisBankExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AxisBankException.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AxisBankExceptionHandler.class);
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorInfo> exceptionHandler(Exception exception) {
@@ -71,7 +71,7 @@ public class AxisBankExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorInfo> contraintViolationExceptionHandler(ConstraintViolationException constraintViolationException) {
+    public ResponseEntity<ErrorInfo> constraintViolationExceptionHandler(ConstraintViolationException constraintViolationException) {
         logCompleteTrace(constraintViolationException);
         List<String> errors = constraintViolationException.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
