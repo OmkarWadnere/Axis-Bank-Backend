@@ -1,6 +1,7 @@
-package com.axis.bank.configuration;
+package com.axis.bank.config;
 
 import com.axis.bank.utility.Constants;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,29 +18,24 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.axis.bank.utility.Constants.X_OPERATION_ID;
 import static com.axis.bank.utility.Constants.X_TRACE_ID;
 
 @Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
+    protected void doFilterInternal(@Nonnull HttpServletRequest request,
+                                    @Nonnull HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
         // Wrap request/response to read body multiple times
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
-        // Generate traceId and operationId for this request
-        String traceId = request.getHeader(X_TRACE_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_TRACE_ID);
-        String operationId = request.getHeader(X_OPERATION_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_OPERATION_ID);
+        String traceId = request.getHeader(X_TRACE_ID);
         MDC.put(Constants.TRACE_ID, traceId);
-        MDC.put(Constants.OPERATION_ID, operationId);
 
         try {
             // Continue filter chain
@@ -69,7 +65,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             headers.put(header, value);
         }
 
-        log.info("Request: {} {}\nHeaders: {}\nBody: {}",
+        log.debug("Request: {} {}\nHeaders: {}\nBody: {}",
                 request.getMethod(),
                 request.getRequestURI(),
                 CollectionUtils.isNotEmpty(headers.entrySet()) ?
@@ -90,7 +86,7 @@ public class LoggingFilter extends OncePerRequestFilter {
             headers.put(header, value);
         }
 
-        log.info("Response: Status={} Headers={} Body={}",
+        log.debug("Response: Status={} Headers={} Body={}",
                 response.getStatus(),
                 CollectionUtils.isNotEmpty(headers.entrySet()) ?
                         headers.entrySet().stream()
