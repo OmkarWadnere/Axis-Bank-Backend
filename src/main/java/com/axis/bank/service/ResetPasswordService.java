@@ -12,6 +12,7 @@ import com.axis.bank.models.dto.VerifyOtpResponse;
 import com.axis.bank.repository.UserOtpRepository;
 import com.axis.bank.repository.UserRepository;
 import com.axis.bank.service.helper.OtpHelper;
+import com.axis.bank.config.RedisHelper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,6 +35,7 @@ public class ResetPasswordService {
     private final OtpHelper otpHelper;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final RedisHelper redisHelper;
 
 
     /**
@@ -65,11 +67,8 @@ public class ResetPasswordService {
                 lastOtpGenerationTime = userOtp.getCreatedAt();
             }
         }
-        // Request count per hour (increment + set TTL only when new)
-        Long requests = redisTemplate.opsForValue().increment(otpHelper.requestCountForSignUp(otpRequest.getEmailId()));
-        if (null != requests && requests == 1) {
-            redisTemplate.expire(otpHelper.requestCountForSignUp(otpRequest.getEmailId()), Duration.ofMinutes(5));
-        }
+        // Request count per hour (increment + set TTL only when new) - use RedisHelper
+        Long requests = redisHelper.incrementAndExpireIfFirst(otpHelper.requestCountForSignUp(otpRequest.getEmailId()), Duration.ofMinutes(5));
         if (null != requests && requests > otpHelper.getMaxRequestPerHour()) {
             throw new AxisBankException("Maximum OTP Requests reached. Try after sometime", HttpStatus.TOO_MANY_REQUESTS);
         }
@@ -89,9 +88,10 @@ public class ResetPasswordService {
         // Generate OTP and cache it
         String otp = otpHelper.generateOtp();
         String hashedOtp = otpHelper.hmac(otpRequest.getEmailId() + "|" + otp);
-        redisTemplate.opsForValue().set(otpHelper.otpKey(otpRequest.getEmailId()), hashedOtp, Duration.ofSeconds(otpHelper.getTtlSeconds()));
-        redisTemplate.opsForValue().set(otpHelper.lastOtpGenerationTime(otpRequest.getEmailId()), String.valueOf(System.currentTimeMillis()), Duration.ofSeconds(otpHelper.getCoolDownSeconds()));
-        redisTemplate.delete(otpHelper.attemptsKey(otpRequest.getEmailId()));
+        // Use RedisHelper to set OTP and timestamps with configured TTLs
+        redisHelper.setOtpForEmail(otpHelper.otpKey(otpRequest.getEmailId()), hashedOtp);
+        redisHelper.setLastOtpGenerationTime(otpHelper.lastOtpGenerationTime(otpRequest.getEmailId()));
+        redisHelper.delete(otpHelper.attemptsKey(otpRequest.getEmailId()));
         userOtp.setOtp(hashedOtp);
         userOtp.setUser(user);
         userOtp.setIsOtpUsed(Boolean.FALSE);

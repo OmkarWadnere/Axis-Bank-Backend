@@ -54,6 +54,7 @@ public class UserService {
     private final OtpHelper otpHelper;
     private final TemporarySignUpUserRepository temporarySignUpUserRepository;
     private final EmailService emailService;
+    private final com.axis.bank.config.RedisHelper redisHelper;
 
     @Transactional
     public OtpResponse generateOtp(OtpRequest otpRequest) throws AxisBankException {
@@ -92,11 +93,8 @@ public class UserService {
             lastOtpGenerationTime = temporarySignUpUser.getLastOtpGenerationTime();
         }
 
-        // Request count per hour (increment + set TTL only when new)
-        Long requests = redisTemplate.opsForValue().increment(otpHelper.requestCountForSignUp(otpRequest.getEmailId()));
-        if (null != requests && requests == 1) {
-            redisTemplate.expire(otpHelper.requestCountForSignUp(otpRequest.getEmailId()), Duration.ofMinutes(5));
-        }
+        // Request count per hour (increment + set TTL only when new) - centralized via RedisHelper
+        Long requests = redisHelper.incrementAndExpireIfFirst(otpHelper.requestCountForSignUp(otpRequest.getEmailId()), Duration.ofMinutes(5));
         if (null != requests && requests > otpHelper.getMaxRequestPerHour()) {
             throw new AxisBankException("Maximum OTP Requests reached. Try after sometime", HttpStatus.TOO_MANY_REQUESTS);
         }
@@ -114,9 +112,10 @@ public class UserService {
         // Generate OTP and cache it
         String otp = otpHelper.generateOtp();
         String hashedOtp = otpHelper.hmac(otpRequest.getEmailId() + "|" + otp);
-        redisTemplate.opsForValue().set(otpHelper.otpKey(otpRequest.getEmailId()), hashedOtp, Duration.ofSeconds(otpHelper.getTtlSeconds()));
-        redisTemplate.opsForValue().set(otpHelper.lastOtpGenerationTime(otpRequest.getEmailId()), String.valueOf(System.currentTimeMillis()), Duration.ofSeconds(otpHelper.getCoolDownSeconds()));
-        redisTemplate.delete(otpHelper.attemptsKey(otpRequest.getEmailId()));
+        // Use RedisHelper to ensure TTLs are always applied consistently
+        redisHelper.setOtpForEmail(otpHelper.otpKey(otpRequest.getEmailId()), hashedOtp);
+        redisHelper.setLastOtpGenerationTime(otpHelper.lastOtpGenerationTime(otpRequest.getEmailId()));
+        redisHelper.delete(otpHelper.attemptsKey(otpRequest.getEmailId()));
 
         temporarySignUpUser.setEmailId(otpRequest.getEmailId());
         temporarySignUpUser.setOtp(hashedOtp);
@@ -176,8 +175,8 @@ public class UserService {
             temporarySignUpUser.setIsOtpUsed(Boolean.TRUE);
             temporarySignUpUserRepository.save(temporarySignUpUser);
             String key = getUserSignUpVerificationKey(temporarySignUpUser.getEmailId());
-            redisTemplate.opsForValue().set(key, Constants.VERIFIED);
-            redisTemplate.expire(key, Duration.ofMinutes(15));
+            // Use RedisHelper to set verification flag with configured TTL
+            redisHelper.setSignupVerification(key);
             return VerifyOtpResponse.builder().message("User verified successfully!!!!").build();
         } else {
             if (temporarySignUpUser.getOtpAttempts() > otpHelper.getMaxVerifyAttempts()) {

@@ -35,6 +35,8 @@ public class RedisConfig {
         Map<String, CacheConfig> config = new HashMap<>();
 
         // 👇 define cache name "userExists"
+        // CacheConfig expects values in milliseconds.
+        // TTL = 60_000 ms (60s), maxIdleTime = 30_000 ms (30s) — tune as needed.
         config.put("userExists", new CacheConfig(60_000, 30_000));
         // TTL = 60s, maxIdleTime = 30s (tune as needed)
 

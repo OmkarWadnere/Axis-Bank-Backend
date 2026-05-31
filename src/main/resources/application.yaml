@@ -2,6 +2,7 @@ server:
   port: 8080
   servlet:
     context-path: /axisbank/v1
+
 spring:
   redis:
     host: localhost
@@ -48,6 +49,7 @@ spring:
           writetimeout: 5000             # Write timeout in milliseconds
           pool: true                     # Enable connection pooling
           poolsize: 5                    # Optional: Maximum connections in the pool (custom property)
+
 management:
   endpoints:
     web:
@@ -73,6 +75,15 @@ app:
     public-key-path: classpath:keys/jwt_public.pem
     access-token-validity-seconds: 900    #15 minutes
     refresh-token-validity-seconds: 1209600  #14 days
+
+  # Centralized Redis TTLs used by RedisHelper. Keep values in sync with existing otp settings below.
+  redis:
+    ttl:
+      signupVerificationMinutes: 15
+      otpSeconds: 300
+      cooldownSeconds: 60
+      requestCountMinutes: 5
+      globalSeconds: 5
 
 logging:
   level:
