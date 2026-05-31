@@ -21,7 +21,7 @@ public class PerformanceLogger {
             return joinPoint.proceed();
         } finally {
             long duration = System.currentTimeMillis() - start;
-            LOGGER.info("Method={} executed in {} ms",
+            LOGGER.debug("Method={} executed in {} ms",
                     joinPoint.getSignature().toShortString(), duration);
         }
     }
