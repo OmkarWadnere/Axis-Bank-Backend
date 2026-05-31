@@ -26,8 +26,8 @@ public class RsaKeyLoader {
         Resource resource = resourceLoader.getResource(resourceLocation);
         try (InputStream inputStream = resource.getInputStream()) {
             String privateKey = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            privateKey = privateKey.replaceAll("-----BEGIN PRIVATE KEY-----", "")
-                    .replaceAll("-----END PRIVATE KEY-----", "")
+            privateKey = privateKey.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
                     .replaceAll("\\s", "");
             byte[] decode = Base64.getDecoder().decode(privateKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decode);
@@ -42,8 +42,8 @@ public class RsaKeyLoader {
         Resource resource = resourceLoader.getResource(resourceLocation);
         try (InputStream inputStream = resource.getInputStream()) {
             String publicKey = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            publicKey = publicKey.replaceAll("-----BEGIN PUBLIC KEY-----", "")
-                    .replaceAll("-----END PUBLIC KEY-----", "")
+            publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
                     .replaceAll("\\s", "");
             byte[] decode = Base64.getDecoder().decode(publicKey);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decode);

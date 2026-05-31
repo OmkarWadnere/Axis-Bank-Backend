@@ -18,8 +18,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
-import static com.axis.bank.utility.Constants.OPERATION_ID;
-import static com.axis.bank.utility.Constants.X_OPERATION_ID;
 import static com.axis.bank.utility.Constants.X_TRACE_ID;
 
 @Component
@@ -32,7 +30,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
         MDC.put(Constants.TRACE_ID, request.getHeader(X_TRACE_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_TRACE_ID));
-        MDC.put(OPERATION_ID, request.getHeader(X_OPERATION_ID) == null ? UUID.randomUUID().toString() : request.getHeader(X_OPERATION_ID));
         ErrorInfo errorInfo = new ErrorInfo();
         errorInfo.setUuid(MDC.get(Constants.TRACE_ID));
         errorInfo.setErrorMessages(Collections.singletonList("Access denied: " + accessDeniedException.getMessage()));
