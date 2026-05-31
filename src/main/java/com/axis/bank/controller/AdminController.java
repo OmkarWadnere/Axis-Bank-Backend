@@ -1,6 +1,5 @@
 package com.axis.bank.controller;
 
-import com.axis.bank.exception.AxisBankException;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.actuate.env.EnvironmentEndpoint;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -19,7 +18,7 @@ import java.util.Map;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/admin")
-public class AxisBankController {
+public class AdminController {
 
     private HealthEndpoint healthEndpoint;
 
@@ -32,7 +31,7 @@ public class AxisBankController {
     private ThreadDumpEndpoint threadDumpEndpoint;
 
     @GetMapping("/health")
-    public ResponseEntity<Map<String, Object>> getFullHealth() throws AxisBankException {
+    public ResponseEntity<Map<String, Object>> getFullHealth() {
         Map<String, Object> result = new HashMap<>();
 
         // Health
