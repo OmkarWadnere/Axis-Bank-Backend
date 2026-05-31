@@ -22,6 +22,6 @@ public class EmailService {
         message.setText(mailBody);
         message.setFrom("wadnereomkar@gmail.com");
         mailSender.send(message);
-        log.info("Mail send successfully for : {}", subject);
+        log.debug("Mail send successfully for : {}", subject);
     }
 }
