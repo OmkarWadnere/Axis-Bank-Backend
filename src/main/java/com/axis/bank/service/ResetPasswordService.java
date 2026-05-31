@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -42,7 +41,7 @@ public class ResetPasswordService {
      * Returns a generic response (no user enumeration).
      */
     @Transactional
-    public OtpResponse generateOtpAndSendOtp(OtpRequest otpRequest) throws AxisBankException, NoSuchAlgorithmException {
+    public OtpResponse generateOtpAndSendOtp(OtpRequest otpRequest) throws AxisBankException {
         // Verify user register with system or not
         Optional<User> userOptional = userRepository.findByEmailId(otpRequest.getEmailId());
         if (userOptional.isEmpty()) {
@@ -195,4 +194,5 @@ public class ResetPasswordService {
         userRepository.save(user);
         return ResetPasswordResponse.builder().message("Password reset successfully!!!").build();
     }
+
 }

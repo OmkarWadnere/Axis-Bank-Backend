@@ -1,47 +1,54 @@
 <configuration scan="true" scanPeriod="60 seconds">
 
-    <!-- ================= Properties ================= -->
-    <property name="LOG_HOME" value="logs"/>
+    <property name="LOG_HOME" value="Axis-Bank-Logs"/>
 
-    <!-- ================= Appenders ================= -->
+    <!-- File Appender -->
+    <appender name="AppFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
 
     <!-- Console Appender -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} {[traceId=%X{traceId}], [operationId=%X{operationId}]} [%level] [%thread] %logger{36} - %msg%n
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} {[traceId=%X{traceId}]} [%level] [%thread] %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
 
-    <!-- Rolling File Appender for main logs -->
-    <appender name="AppFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>Axis-Bank-Logs/axisbank-app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>Axis-Bank-Logs/archive/axisbank-app-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <fileNamePattern>
+                ${LOG_HOME}/archive/axisbank-app-%d{yyyy-MM-dd}.log.gz
+            </fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
+
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} {[traceId=%X{traceId}], [operationId=%X{operationId}]} [%level] [%thread] %logger{36} - %msg%n
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS}
+                {[traceId=%X{traceId}]}
+                [%level] [%thread] %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
 
-    <!-- Async Appender -->
-    <appender name="AsyncApp" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="AppFile"/>
-        <queueSize>5000</queueSize>
+    <!-- Async Wrapper -->
+    <appender name="AsyncApp"
+              class="ch.qos.logback.classic.AsyncAppender">
+
+        <queueSize>10000</queueSize>
         <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+
+        <appender-ref ref="AppFile"/>
+
     </appender>
 
-    <!-- ================= Loggers ================= -->
-
-    <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="Console"/>
         <appender-ref ref="AsyncApp"/>
     </root>
 
-    <!-- Reduce noise for Spring/Hibernate -->
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
+
 </configuration>

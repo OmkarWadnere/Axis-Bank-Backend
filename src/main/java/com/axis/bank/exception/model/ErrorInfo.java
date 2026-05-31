@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 public class ErrorInfo {
 
     private String uuid;
-    private String errorMessage;
+    private List<String> errorMessages;
     private Integer errorCode;
     private LocalDateTime timeStamp;
 }

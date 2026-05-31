@@ -1,5 +1,7 @@
-package com.axis.bank.configuration;
+package com.axis.bank.config;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -8,9 +10,12 @@ import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +43,28 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
+
+        RedisStandaloneConfiguration redisConfig =
+                new RedisStandaloneConfiguration("localhost", 6379);
+
+        SocketOptions socketOptions = SocketOptions.builder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .keepAlive(true)
+                .build();
+
+        ClientOptions clientOptions = ClientOptions.builder()
+                .autoReconnect(true)
+                .socketOptions(socketOptions)
+                .build();
+
+        LettuceClientConfiguration clientConfig =
+                LettuceClientConfiguration.builder()
+                        .commandTimeout(Duration.ofSeconds(5))
+                        .shutdownTimeout(Duration.ZERO)
+                        .clientOptions(clientOptions)
+                        .build();
+
+        return new LettuceConnectionFactory(redisConfig, clientConfig);
     }
 
     @Bean

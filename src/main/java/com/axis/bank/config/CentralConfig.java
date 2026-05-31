@@ -1,11 +1,18 @@
-package com.axis.bank.configuration;
+package com.axis.bank.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.security.SecureRandom;
+
 @Configuration
-public class FilterConfig {
+public class CentralConfig {
+
+    @Bean
+    public SecureRandom secureRandom() {
+        return new SecureRandom();
+    }
 
     @Bean
     public FilterRegistrationBean<LoggingFilter> loggingFilter() {

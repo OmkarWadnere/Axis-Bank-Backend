@@ -1,6 +1,7 @@
 package com.axis.bank.auth.security;
 
 import com.axis.bank.auth.service.TokenBlackListService;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenBlackListService tokenBlackListService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         String token = null;
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {

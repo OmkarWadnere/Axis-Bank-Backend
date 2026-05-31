@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -55,9 +54,6 @@ public class UserService {
     private final OtpHelper otpHelper;
     private final TemporarySignUpUserRepository temporarySignUpUserRepository;
     private final EmailService emailService;
-
-    @Value("${user.signupTime}")
-    private Long singUpTime;
 
     @Transactional
     public OtpResponse generateOtp(OtpRequest otpRequest) throws AxisBankException {
@@ -294,9 +290,9 @@ public class UserService {
     }
 
     private void updateUserInvalidPasswordCount(User user, MathematicalOperation operation) {
-        if (operation.getValue().equals(MathematicalOperation.ADDITION.getValue())) {
+        if (operation == MathematicalOperation.ADDITION) {
             user.setInvalidPasswordCounter(user.getInvalidPasswordCounter() + 1);
-        } else if (operation.getValue().equals(MathematicalOperation.NEUTRALIZE.getValue())) {
+        } else if (operation == MathematicalOperation.NEUTRALIZE) {
             user.setInvalidPasswordCounter(0);
         }
         userRepository.save(user);
